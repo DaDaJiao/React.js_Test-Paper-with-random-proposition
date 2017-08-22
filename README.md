@@ -2,11 +2,11 @@
 <br>
 
 ### Function<br>
-Initialize a test paper with random proposition. If you answer the question correctly, <br>it will not show up the next time you initialize a test paper.<br> All the correct anwsers are A.<br>
+Initialize a test paper with random proposition. <br>If you answer the question correctly, it will not show up the next time you initialize a test paper.<br> All the correct anwsers are A.<br>
 <br>
 ### Module Structure<br>
 StartButton (call) Paper (call) Quesion<br>
-besides,           Paper (call) SubmitButton (call) StartButton<br>
+besides, >>>>>>>>>>Paper (call) SubmitButton (call) StartButton<br>
 <br>
 ### Function Realization<br>
 ##### Random Proposition<br>
