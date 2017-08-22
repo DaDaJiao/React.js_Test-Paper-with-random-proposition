@@ -6,7 +6,7 @@ Initialize a test paper with random proposition. <br>If you answer the question 
 <br>
 ### Module Structure<br>
 StartButton (call) Paper (call) Quesion<br>
-besides, >>>>>>>>>>Paper (call) SubmitButton (call) StartButton<br>
+besides, >>>> Paper (call) SubmitButton (call) StartButton<br>
 <br>
 ### Function Realization<br>
 ##### Random Proposition<br>
