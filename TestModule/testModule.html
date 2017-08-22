@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>testModule</title>
+    <script src="react/react.js"></script>
+    <script src="react/react-dom.js"></script>
+    <script src="react/browser.min.js"></script>
+    <script src="component/EasyQuestions.js"></script>
+    <script src="component/SimpleQuestions.js"></script>
+    <script src="component/HardQuestions.js"></script>
+    <style>
+        *{
+            margin: 0px;
+            padding: 0px;
+        }
+        #startButton, #submitButton {
+            display: block;
+            background-color: #5085BA;
+            margin: 50px auto;
+            height: 40px;
+            width: 400px;
+            color: white;
+            font-size: 20px;
+        }
+        #startButton:hover, #submitButton:hover {
+            background-color: #5897D7;
+        }
+        #startButton:active , #submitButton:active{
+            background-color:#eee;
+            color:black;
+        }
+        .questions {
+            width : 600px;
+            margin: 20px auto;
+            border: 1px solid skyblue;
+            padding: 3px;
+        }
+        .option{
+            margin-top: 3px;
+            padding: 3px;
+        }
+        .results{
+            width : 400px;
+            margin: 20px auto;
+            border: 1px solid skyblue;
+            padding: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+</body>
+<script type="text/babel">
+    /*
+       生成随机数数组,通过该随机数数组来获取题库中题目
+    */
+    function setRandomArr(arrIndex) {
+        let originalArr = [];
+        for (let i = 0; i < arrIndex.length; ++i){
+            originalArr[i] = i;
+        }
+        originalArr.sort(function() {
+            return 0.5 - Math.random();
+        });
+        return originalArr;
+    }
+
+    let randomNumbersOfEasyQuestions = setRandomArr(easyQuestions);
+    let randomNumbersOfSimpleQuestions = setRandomArr(simpleQuestions);
+    let randomNumbersOfHardQuestions = setRandomArr(hardQuestions);
+
+    /*
+        渲染页面所需要的组件：
+        开始按钮组件 (调用) 试卷组件 (调用) 题目组件
+                                     (包含) 提交按钮组件 (调用) 开始按钮组件
+     */
+    class StartButton extends React.Component {
+        constructor(props){
+            super(props);
+            this.showPaper = this.showPaper.bind(this);
+        }
+        showPaper() {
+            ReactDOM.render(
+                <Paper/>,
+                document.getElementById("container")
+            );
+        }
+        render() {
+            for (let i = 0; i < randomNumbersOfEasyQuestions.length; ++i) {
+                console.log(randomNumbersOfEasyQuestions[i]);
+            }
+            console.log("\n");
+            for (let i = 0; i < randomNumbersOfSimpleQuestions.length; ++i) {
+                console.log(randomNumbersOfSimpleQuestions[i]);
+            }
+            console.log("\n");
+            for (let i = 0; i < randomNumbersOfHardQuestions.length; ++i) {
+                console.log(randomNumbersOfHardQuestions[i]);
+            }
+            console.log("\n");
+            return(
+                    <button id = "startButton" onClick = {this.showPaper}>开始测试</button>
+            );
+        }
+    }
+
+    const easyQuestionsLength = 5;
+    const simpleQuestionsLength = 3;
+    const hardQuestionsLength = 2;
+    let nCount = 0;
+    let correctAnswer = "A";    //暂定为A，需要时可从数组中改动
+    class Paper extends React.Component {
+        constructor(props){
+            super(props);
+            this.initialPaper = this.initialPaper.bind(this);
+        }
+        initialPaper(questionArr, length, questionType, randomNumbersOfQuestionType) {
+            for (let i = 0; i < length; ++i) {
+               questionArr.push(
+                   <Question
+                           id = {nCount}
+                           order = {nCount + 1}
+                           questionsType = {questionType[randomNumbersOfQuestionType[i]][0]}
+                           name = {"question" + nCount}
+                           key = {nCount}
+                   />);
+               ++nCount;
+            }
+        }
+        submitAnswers() {
+            nCount = 0; //提交答案的时候将nCount清零，用于下一次生成试卷时计数
+            let questionLength = (easyQuestionsLength + simpleQuestionsLength + hardQuestionsLength);
+            let answers = [];
+            let resultsArr = [];
+            //向answers数组中push已经被选中的答案
+            for (let i = 0; i < questionLength; ++i) {
+                let options = document.getElementsByName("question" + i);
+                for (let j = 0; j < options.length; ++j) {
+                    if (options[j].checked) {
+                        answers.push(options[j].value);
+                        break;
+                    }
+                }
+            }
+            //将answers数组中的答案与正确答案比较，向resultsArr中push最终结果
+            let easyCount, simpleCount, hardCount = 0;
+            for (let i = 0; i < questionLength; ++i) {
+                if (answers[i] == correctAnswer) {
+                    resultsArr.push(<p key={i} className="results">第{i+1}题：正确</p>);
+                    //答题正确则删除相应题库随机数组中的序号，保证下次出题不再出现
+                    if (i < easyQuestionsLength) {
+                        randomNumbersOfEasyQuestions.splice(i - easyCount, 1);
+                        ++easyCount;
+                    }
+                    else if(easyQuestionsLength <= i && i < (easyQuestionsLength + simpleQuestionsLength)) {
+                        randomNumbersOfSimpleQuestions.splice(i - simpleCount - easyQuestionsLength, 1);
+                        ++simpleCount;
+                    }
+                    else {
+                        randomNumbersOfHardQuestions.splice(i - hardCount - easyQuestionsLength - simpleQuestionsLength, 1);
+                        ++hardCount;
+                    }
+                }else {
+                    resultsArr.push(<p key={i} className="results">第{i+1}题：错误</p>);
+                }
+            }
+            //将答案渲染到网页上
+            ReactDOM.render(
+                <div>
+                    {resultsArr}
+                    <StartButton/>
+                </div>,
+                document.getElementById("container")
+            );
+        }
+        render() {
+            let questionArr = [];
+            this.initialPaper(questionArr, easyQuestionsLength, easyQuestions, randomNumbersOfEasyQuestions);
+            this.initialPaper(questionArr, simpleQuestionsLength, simpleQuestions, randomNumbersOfSimpleQuestions);
+            this.initialPaper(questionArr, hardQuestionsLength, hardQuestions, randomNumbersOfHardQuestions);
+            return (
+                <div>
+                    {questionArr}
+                    <button id = "submitButton" onClick = {this.submitAnswers}>提交答案</button>
+                </div>
+            );
+        }
+    }
+
+    class Question extends React.Component {
+        constructor(props){
+            super(props);
+        }
+        render() {
+            return (
+                <div className="questions" id = {this.props.id}>
+                    <p>({this.props.order}){this.props.questionsType}</p>
+                    <form action="">
+                        <div className = "option">
+                            <input type="radio" name={this.props.name} value="A"/> A
+                        </div>
+                        <div className = "option">
+                            <input type="radio" name={this.props.name} value="B"/> B
+                        </div>
+                        <div className = "option">
+                            <input type="radio" name={this.props.name} value="C"/> C
+                        </div>
+                        <div className = "option">
+                            <input type="radio" name={this.props.name} value="D"/> D
+                        </div>
+                    </form>
+                </div>
+            );
+        }
+    }
+    Question.propTypes = {
+        id : React.PropTypes.number.isRequired,     //为每一个题目设置一个id
+        order: React.PropTypes.number.isRequired,  //设置每个题目的序号
+        questionsType : React.PropTypes.string.isRequired, //设置题目类型，简单题/中等题/难题
+        name : React.PropTypes.string.isRequired    //将每题的选项绑定一个name
+    };
+
+    /*
+        渲染入口
+     */
+    ReactDOM.render(
+        <StartButton/>,
+        document.getElementById("container")
+    );
+
+</script>
+</html>

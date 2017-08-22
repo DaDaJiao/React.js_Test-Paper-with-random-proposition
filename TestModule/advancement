@@ -1,0 +1,6 @@
+1. index.html文件，49行+， 能否使用一个复用型函数来产生几个随机数组？         已经解决
+2. testModule.html文件，146+ bug原因？
+    原因：第一个答案正确时，删除修改数组，此时数组的顺序已经改变，再进行修改无用
+
+3. testModule.html文件，90+ debug部分记得删除
+3. testModule.html文件，137+ 两个for循环是否可以归并？submmitAnswers方法太长，是否可以简化？
